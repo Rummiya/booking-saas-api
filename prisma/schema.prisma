@@ -7,3 +7,185 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id    String @id @default(uuid())
+  email String @unique
+  name  String
+  phone String
+  role  Roles  @default(USER)
+
+  // business Business?
+  bookings Booking[]
+  clients  Client[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Client {
+  id                String       @id @default(uuid())
+  note              String?
+  preferredServices String[]     @map("preferred_services")
+  status            ClientStatus @default(NEW)
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String   @map("business_id")
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, businessId])
+  @@map("clients")
+}
+
+model Business {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
+  slug        String @unique
+  name        String
+  description String
+
+  phone    String
+  address  String?
+  category String
+
+  services Service[]
+  bookings Booking[]
+  clients  Client[]
+  managers Manager[]
+  schedule Schedule[]
+
+  // owner   User   @relation(fields: [ownerId], references: [id])
+  // ownerId String @unique @map("owner_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("businesses")
+}
+
+model Manager {
+  id String @id @default(uuid())
+
+  name  String
+  email String @unique
+  key   String
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("managers")
+}
+
+model Service {
+  id       String @id @default(uuid())
+  title    String
+  duration String
+  price    Int
+  currency String
+
+  isActive Boolean @default(true) @map("is_active")
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("services")
+}
+
+model Booking {
+  id     String        @id @default(uuid())
+  date   DateTime
+  time   String
+  status BookingStatus @default(WAITING)
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String @map("client_id")
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  service   Service @relation(fields: [serviceId], references: [id])
+  serviceId String  @map("service_id")
+
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String   @map("business_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("bookings")
+}
+
+model Schedule {
+  id       String  @id @default(uuid())
+  isActive Boolean @default(true) @map("is_active")
+
+  day      ScheduleDays
+  workTime String       @map("work_time")
+  break    String
+  slots    String[]
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("schedules")
+}
+
+enum Roles {
+  USER
+  OWNER
+  ADMIN
+
+  @@map("enum_roles")
+}
+
+enum ScheduleDays {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+
+  @@map("enum_schedule_days")
+}
+
+enum BookingStatus {
+  CONFIRMED
+  WAITING
+  DONE
+  CANCELED
+
+  @@map("enum_booking_status")
+}
+
+enum ClientStatus {
+  VIP
+  REGULAR
+  NEW
+  BLACKLIST
+
+  @@map("enum_client_status")
+}
