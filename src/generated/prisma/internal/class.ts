@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n",
+  "inlineSchema": "generator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id    String @id @default(uuid())\n  email String @unique\n  name  String\n  phone String\n  role  Roles  @default(USER)\n\n  // business Business?\n  bookings Booking[]\n  clients  Client[]\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"users\")\n}\n\nmodel Client {\n  id                String       @id @default(uuid())\n  note              String?\n  preferredServices String[]     @map(\"preferred_services\")\n  status            ClientStatus @default(NEW)\n\n  user   User   @relation(fields: [userId], references: [id])\n  userId String @map(\"user_id\")\n\n  business   Business @relation(fields: [businessId], references: [id])\n  businessId String   @map(\"business_id\")\n\n  bookings Booking[]\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@unique([userId, businessId])\n  @@map(\"clients\")\n}\n\nmodel Business {\n  id       String @id @default(uuid())\n  email    String @unique\n  password String\n\n  slug        String @unique\n  name        String\n  description String\n\n  phone    String\n  address  String?\n  category String\n\n  services Service[]\n  bookings Booking[]\n  clients  Client[]\n  managers Manager[]\n  schedule Schedule[]\n\n  // owner   User   @relation(fields: [ownerId], references: [id])\n  // ownerId String @unique @map(\"owner_id\")\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"businesses\")\n}\n\nmodel Manager {\n  id String @id @default(uuid())\n\n  name  String\n  email String @unique\n  key   String\n\n  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)\n  businessId String   @map(\"business_id\")\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"managers\")\n}\n\nmodel Service {\n  id       String @id @default(uuid())\n  title    String\n  duration String\n  price    Int\n  currency String\n\n  isActive Boolean @default(true) @map(\"is_active\")\n\n  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)\n  businessId String   @map(\"business_id\")\n\n  bookings Booking[]\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"services\")\n}\n\nmodel Booking {\n  id     String        @id @default(uuid())\n  date   DateTime\n  time   String\n  status BookingStatus @default(WAITING)\n\n  client   Client @relation(fields: [clientId], references: [id])\n  clientId String @map(\"client_id\")\n\n  user   User   @relation(fields: [userId], references: [id])\n  userId String @map(\"user_id\")\n\n  service   Service @relation(fields: [serviceId], references: [id])\n  serviceId String  @map(\"service_id\")\n\n  business   Business @relation(fields: [businessId], references: [id])\n  businessId String   @map(\"business_id\")\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"bookings\")\n}\n\nmodel Schedule {\n  id       String  @id @default(uuid())\n  isActive Boolean @default(true) @map(\"is_active\")\n\n  day      ScheduleDays\n  workTime String       @map(\"work_time\")\n  break    String\n  slots    String[]\n\n  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)\n  businessId String   @map(\"business_id\")\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"schedules\")\n}\n\nenum Roles {\n  USER\n  OWNER\n  ADMIN\n\n  @@map(\"enum_roles\")\n}\n\nenum ScheduleDays {\n  MONDAY\n  TUESDAY\n  WEDNESDAY\n  THURSDAY\n  FRIDAY\n  SATURDAY\n  SUNDAY\n\n  @@map(\"enum_schedule_days\")\n}\n\nenum BookingStatus {\n  CONFIRMED\n  WAITING\n  DONE\n  CANCELED\n\n  @@map(\"enum_booking_status\")\n}\n\nenum ClientStatus {\n  VIP\n  REGULAR\n  NEW\n  BLACKLIST\n\n  @@map(\"enum_client_status\")\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"enum\",\"type\":\"Roles\"},{\"name\":\"bookings\",\"kind\":\"object\",\"type\":\"Booking\",\"relationName\":\"BookingToUser\"},{\"name\":\"clients\",\"kind\":\"object\",\"type\":\"Client\",\"relationName\":\"ClientToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"users\"},\"Client\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"note\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"preferredServices\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"preferred_services\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ClientStatus\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ClientToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"business\",\"kind\":\"object\",\"type\":\"Business\",\"relationName\":\"BusinessToClient\"},{\"name\":\"businessId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"business_id\"},{\"name\":\"bookings\",\"kind\":\"object\",\"type\":\"Booking\",\"relationName\":\"BookingToClient\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"clients\"},\"Business\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"services\",\"kind\":\"object\",\"type\":\"Service\",\"relationName\":\"BusinessToService\"},{\"name\":\"bookings\",\"kind\":\"object\",\"type\":\"Booking\",\"relationName\":\"BookingToBusiness\"},{\"name\":\"clients\",\"kind\":\"object\",\"type\":\"Client\",\"relationName\":\"BusinessToClient\"},{\"name\":\"managers\",\"kind\":\"object\",\"type\":\"Manager\",\"relationName\":\"BusinessToManager\"},{\"name\":\"schedule\",\"kind\":\"object\",\"type\":\"Schedule\",\"relationName\":\"BusinessToSchedule\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"businesses\"},\"Manager\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"business\",\"kind\":\"object\",\"type\":\"Business\",\"relationName\":\"BusinessToManager\"},{\"name\":\"businessId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"business_id\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"managers\"},\"Service\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"duration\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"currency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\",\"dbName\":\"is_active\"},{\"name\":\"business\",\"kind\":\"object\",\"type\":\"Business\",\"relationName\":\"BusinessToService\"},{\"name\":\"businessId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"business_id\"},{\"name\":\"bookings\",\"kind\":\"object\",\"type\":\"Booking\",\"relationName\":\"BookingToService\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"services\"},\"Booking\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"time\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"BookingStatus\"},{\"name\":\"client\",\"kind\":\"object\",\"type\":\"Client\",\"relationName\":\"BookingToClient\"},{\"name\":\"clientId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"client_id\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"BookingToUser\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_id\"},{\"name\":\"service\",\"kind\":\"object\",\"type\":\"Service\",\"relationName\":\"BookingToService\"},{\"name\":\"serviceId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"service_id\"},{\"name\":\"business\",\"kind\":\"object\",\"type\":\"Business\",\"relationName\":\"BookingToBusiness\"},{\"name\":\"businessId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"business_id\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"bookings\"},\"Schedule\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\",\"dbName\":\"is_active\"},{\"name\":\"day\",\"kind\":\"enum\",\"type\":\"ScheduleDays\"},{\"name\":\"workTime\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"work_time\"},{\"name\":\"break\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slots\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"business\",\"kind\":\"object\",\"type\":\"Business\",\"relationName\":\"BusinessToSchedule\"},{\"name\":\"businessId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"business_id\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"schedules\"}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -174,7 +174,75 @@ export interface PrismaClient<
     extArgs: ExtArgs
   }>>
 
-    
+      /**
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
+    * ```
+    */
+  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.client`: Exposes CRUD operations for the **Client** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Clients
+    * const clients = await prisma.client.findMany()
+    * ```
+    */
+  get client(): Prisma.ClientDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.business`: Exposes CRUD operations for the **Business** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Businesses
+    * const businesses = await prisma.business.findMany()
+    * ```
+    */
+  get business(): Prisma.BusinessDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.manager`: Exposes CRUD operations for the **Manager** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Managers
+    * const managers = await prisma.manager.findMany()
+    * ```
+    */
+  get manager(): Prisma.ManagerDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.service`: Exposes CRUD operations for the **Service** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Services
+    * const services = await prisma.service.findMany()
+    * ```
+    */
+  get service(): Prisma.ServiceDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.booking`: Exposes CRUD operations for the **Booking** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Bookings
+    * const bookings = await prisma.booking.findMany()
+    * ```
+    */
+  get booking(): Prisma.BookingDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.schedule`: Exposes CRUD operations for the **Schedule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Schedules
+    * const schedules = await prisma.schedule.findMany()
+    * ```
+    */
+  get schedule(): Prisma.ScheduleDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {
