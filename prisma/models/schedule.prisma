@@ -1,0 +1,31 @@
+model Schedule {
+  id       String  @id @default(uuid())
+  isActive Boolean @default(true) @map("is_active")
+
+  day       ScheduleDays
+  intervals ScheduleInterval[]
+
+  branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branchId String @map("branch_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("schedules")
+}
+
+model ScheduleInterval {
+  id String @id @default(uuid())
+
+  type  ScheduleTypes @default(WORK)
+  start String
+  end   String
+
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  scheduleId String   @map("schedule_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("schedule_intervals")
+}

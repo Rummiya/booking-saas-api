@@ -1,0 +1,59 @@
+enum Roles {
+  USER
+  ADMIN
+
+  @@map("enum_roles")
+}
+
+enum BusinessFormat {
+  ONSITE
+  ONLINE
+  HYBRID
+
+  @@map("business_format")
+}
+
+enum BusinessPlan {
+  FREE
+  SOLO
+  TEAM
+
+  @@map("business_plan")
+}
+
+enum ScheduleTypes {
+  WORK
+  BREAK
+
+  @@map("enum_schedule_types")
+}
+
+enum ScheduleDays {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+
+  @@map("enum_schedule_days")
+}
+
+enum BookingStatus {
+  CONFIRMED
+  WAITING
+  DONE
+  CANCELED
+
+  @@map("enum_booking_status")
+}
+
+enum ClientStatus {
+  VIP
+  REGULAR
+  NEW
+  BLACKLIST
+
+  @@map("enum_client_status")
+}

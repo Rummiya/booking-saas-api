@@ -1,0 +1,120 @@
+model Business {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
+  slug        String @unique
+  name        String
+  description String
+
+  phones     String[]
+  address    String
+  cities     BusinessCity[]
+  categories BusinessCategory[]
+
+  format BusinessFormat @default(ONSITE)
+  plan   BusinessPlan   @default(FREE)
+
+  branches Branch[]
+  services Service[]
+  clients  Client[]
+  managers Manager[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("businesses")
+}
+
+model BusinessCity {
+  id String @id @default(uuid())
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  cityId String @map("city_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("business_cities")
+}
+
+model City {
+  id   String @id @default(uuid())
+  name String @unique
+
+  businesses       BusinessCity[]
+  businessBranches Branch[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("cities")
+}
+
+model BusinessCategory {
+  id String @id @default(uuid())
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String   @map("category_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("business_categories")
+}
+
+model Category {
+  id    String @id @default(uuid())
+  title String @unique
+
+  businesses BusinessCategory[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Manager {
+  id String @id @default(uuid())
+
+  fullname String
+  email    String @unique
+  key      String
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("managers")
+}
+
+model Branch {
+  id      String   @id @default(uuid())
+  address String
+  phones  String[]
+  isOpen  Boolean  @default(true) @map("is_open")
+
+  city   City   @relation(fields: [cityId], references: [id])
+  cityId String @map("city_id")
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  masters  Master[]
+  schedule Schedule[]
+  bookings Booking[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("branches")
+}

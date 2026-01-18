@@ -1,0 +1,52 @@
+model Service {
+  id              String @id @default(uuid())
+  title           String
+  durationMinutes Int    @map("duration_minutes")
+  price           Int
+  currency        String
+
+  isActive Boolean @default(true) @map("is_active")
+
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  businessId String   @map("business_id")
+
+  bookings Booking[]
+  masters  ServiceMaster[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("services")
+}
+
+model ServiceMaster {
+  id String @id @default(uuid())
+
+  master   Master @relation(fields: [masterId], references: [id], onDelete: Cascade)
+  masterId String @map("master_id")
+
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String  @map("service_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([masterId, serviceId])
+  @@map("services_masters")
+}
+
+model Master {
+  id       String @id @default(uuid())
+  fullname String
+
+  services ServiceMaster[]
+  bookings Booking[]
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId String @map("branch_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("masters")
+}
