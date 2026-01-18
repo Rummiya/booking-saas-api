@@ -1,0 +1,25 @@
+model Client {
+  id       String @id @default(uuid())
+  fullname String
+  phone    String
+  email    String
+
+  note              String?
+  preferredServices String[]     @map("preferred_services")
+  status            ClientStatus @default(NEW)
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String? @map("user_id")
+
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String   @map("business_id")
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([email, businessId])
+  @@unique([userId, businessId])
+  @@map("clients")
+}

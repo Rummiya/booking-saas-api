@@ -1,0 +1,23 @@
+model Booking {
+  id     String        @id @default(uuid())
+  date   DateTime
+  time   String
+  status BookingStatus @default(WAITING)
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String @map("client_id")
+
+  master   Master? @relation(fields: [masterId], references: [id])
+  masterId String? @map("master_id")
+
+  service   Service @relation(fields: [serviceId], references: [id])
+  serviceId String  @map("service_id")
+
+  branch   Branch @relation(fields: [branchId], references: [id])
+  branchId String @map("branch_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("bookings")
+}
